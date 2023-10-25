@@ -1,0 +1,266 @@
+#COMPONENTMAP
+SC 0 -1 1
+
+#DESCRIPTION
+PARAM.in.editedbyZR1227.in: set DnAmr as 400, MaxIteration as 800，test for magnetogram of own choice 		StringDescription
+
+ 
+#TIMEACCURATE
+F
+
+#STARTTIME
+2021		iYear
+1			iMonth
+17			iDay
+13			iHour
+14			iMinute
+0			iSecond
+0.0         FracSecond
+
+#BEGIN_COMP SC
+
+#UPDATECHECK
+T			UseUpdateCheck
+40.			RhoMinPercent
+400.		RhoMaxPercent
+40.			pMinPercent
+400.		pMaxPercent
+
+#COMPONENT
+SC			NameComp
+
+#SAVERESTART
+T			DoSaveRestart
+100		DnSaveRestart
+-1.0		DtSaveRestart
+
+#COORDSYSTEM
+HGR			TypeCoordSystem
+
+#PLASMA
+1.0			FluidMass [amu]
+1.0			IonCharge [e]
+1.0			ElectronTemperatureRatio
+
+#LOOKUPTABLE
+B0                      NameTable
+load                    NameCommand
+fdips_bxyz.out               NameFile
+real4                   TypeFile
+
+FACTORB0
+2.0			FactorB0
+
+#CURLB0
+T			UseCurlB0
+2.5			rCurrentFreeB0
+F			UseB0MomentumFlux
+
+#POYNTINGFLUX
+1e6			PoyntingFluxPerBSi
+
+#CORONALHEATING
+turbulentcascade	TypeCoronalHeating
+T			        UseWaveReflection
+1.5e5			    LperpTimesSqrtBSi
+0.0			        rMinWaveReflection
+F			        UseSurfaceWaveRefl
+
+#HEATPARTITIONING
+stochasticheating	TypeHeatPartitioning
+0.21			    StochasticExponent
+0.18			    StochasticAmplitude
+
+#RADIATIVECOOLING
+T			UseRadCooling
+
+#USERSWITCH
++init +ic	StringSwitch
+
+#COARSEAXIS
+T			UseCoarseAxis
+2			nCoarseLayer
+
+#USERINPUTBEGIN -----------------------------------
+
+#CHROMOBC
+2e17		NchromoSi
+5e4			TchromoSi
+
+#USERINPUTEND -------------------------------------
+
+#TRANSITIONREGION
+T			DoExtendTransitionRegion
+2.2e5		TeTransitionRegionSi
+1.0e1		DeltaTeModSi
+
+#GRIDGEOMETRYLIMIT
+spherical_genr		TypeGeometry
+grid_awsom.dat		NameGridFile
+1.0                 Coord1Min Radius
+24.0                Coord1Max
+0.0                 Coord2Min Longitude
+360.0               Coord2Max
+-90.0               Coord3Min Latitude
+90.0                Coord3Max
+
+! Use a true sphere, so box is made much larger
+#GRID
+1			nRootBlock1
+2			nRootBlock2
+1			nRootBlock3
+-100.0		xMin
+ 100.0		xMax
+-100.0		yMin
+ 100.0		yMax
+-100.0		zMin
+ 100.0		zMax
+
+#GRIDBLOCKALL
+4000		MaxBlock
+
+#LIMITRADIUS
+1.0			rMin
+24.0		rMax
+
+#AMRREGION
+InnerShell	NameRegion
+shell0		StringShape
+1.0			RadiusInner
+1.7			Radius
+
+#AMRREGION
+LargeShell	NameRegion
+shell0		StringShape
+1.0			RadiusInner
+2.0			Radius
+
+#AMRCRITERIARESOLUTION
+4			nRefineCrit
+Level +InnerShell		                StringRefine
+4			RefineTo
+4			CoarsenFrom
+currentsheet +LargeShell -InnerShell	StringRefine
+0.5			CoarsenLimit
+0.5			RefineLimit
+0.1			MaxResolution
+Level		StringRefine
+2			RefineTo
+2			CoarsenFrom
+currentsheet -LargeShell		        StringRefine
+0.5			CoarsenLimit
+0.5			RefineLimit
+0.1			MaxResolution
+
+#GRIDRESOLUTION
+12.0		Resolution
+initial		StringShape
+
+#LOOKUPTABLE
+radcool			    NameTable
+load			    NameCommand
+RadCoolCorona.dat	NameFile
+ascii			    TypeFile
+
+#DOAMR
+T			DoAmr
+400 		DnAmr
+-1			DtAmr
+T			IsStrictAmr
+
+AMR
+5			DnRefine 40000
+F			DoAutoRefine
+
+#TIMESTEPPING
+2			nStage
+0.8			CflExpl
+
+#SCHEME
+2			nOrder (1 or 2)
+Linde		TypeFlux
+minmod		TypeLimiter
+
+Sokolov		TypeFlux (Roe, Rusanov, Linde, Sokolov
+mc3			TypeLimiter
+1.2			LimiterBeta
+
+#LIMITER
+T			UseLogRhoLimiter
+T			UseLogPLimiter
+F			UseRhoRatioLimiter
+
+#MINIMUMTEMPERATURE
+5.0e4		TminDim
+5.0e4		TeMinDim
+
+#MINIMUMPRESSURE
+1.0E-9		pMinDim
+1.0e-9		PeMinDim
+
+#MINIMUMRADIALSPEED
+T			UseSpeedMin
+10			rSpeedMin
+250			SpeedMinDim
+10 h		TauSpeedMinDim
+
+#NONCONSERVATIVE
+T			UseNonConservative
+
+#MESSAGEPASS
+all			TypeMessagePass
+
+#RESCHANGE
+T			UseAccurateReschange
+
+#SAVELOGFILE
+T			DoSaveLogfile
+RAW			StringLog
+1			DnSaveLogfile
+-1.			DtSaveLogfile
+
+#OUTERBOUNDARY
+user		TypeBc1   user for spherical and user_outerbcs
+float		TypeBc2
+periodic	TypeBc3
+periodic	TypeBc4
+periodic	TypeBc5
+periodic	TypeBc6
+
+#SAVEPLOT
+3			    nPlotFile 1
+x=0 VAR idl		StringPlot
+100			    DnSavePlot 5000
+-1.0		    DtSavePlot
+-1.0		    DxSavePlot
+rho ux uy uz ti bx by bz I01 I02 p		NameVars
+{default}		NamePars
+z=0 VAR idl		StringPlot
+100			    DnSavePlot 5000
+-1.0		    DtSavePlot
+-1.0		    DxSavePlot
+rho ux uy uz ti bx by bz I01 I02 p		NameVars
+{default}		NamePars
+shl MHD idl     StringPlot
+100             DnSavePlot
+-1.             DtSavePlot
+GEO             TypeCoordPlot
+1.0             rMin
+7.6             rMax
+0.5             dRad ! only read if rMin /= rMax
+0.              LonMin
+360.            LonMax
+10.             dLon ! only read if LonMin /= LonMax
+-90.            LatMin
+90.             LatMax
+10.             dLat ! only read if LatMin /= LatMax	
+
+
+#SAVEINITIAL
+T			DoSaveInitial
+
+#END_COMP SC
+
+#STOP
+800		MaxIteration 60000
+-1.0		tSimulationMax
